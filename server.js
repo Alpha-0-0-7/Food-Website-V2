@@ -1,11 +1,31 @@
 'use strict';
 
+const mongoose = require("mongoose");
+const cookieParser = require('cookie-parser');
 const express = require("express");
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
-var PORT = process.env.PORT || 9000;
-app.listen(PORT, function () {
-    console.log("Server has started at port : " + PORT);
-});
+const PORT = process.env.PORT || 9000;
+
+const DB_LINK = process.env.DB_LINK || require("./config/config").DB_LINK;
+
+const startUp = async () => {
+    try {
+        await mongoose.connect(DB_LINK);
+        app.listen(PORT, () => {
+            console.log("Server has started at port : " + PORT);
+        });
+    } catch (err) {
+        console.log('DB connection failed');
+    }
+};
+startUp()
+    .then(() => {
+        console.log('Server started successfully');
+    })
+    .catch(() => {
+        console.log('Server failed to start');
+    });
